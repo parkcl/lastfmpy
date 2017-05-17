@@ -48,25 +48,38 @@ class LastfmClient:
 
     def user_getRecentPlayed(self, user, limit=50,
                              page_number=1, _from=None,
-                             extended=0, to=None):
+                             extended=0, to=None,
+                             _format='json'):
         method = "user.getrecenttracks"
 
         if _from is None and to is None:
-            return self.make_api_call("GET", {'limit': limit, 'page_number': page_number,
-                                              'extended': extended, 'method': method, "format": "json",
-                                              'user': user})
+            return self.make_api_call("GET", {
+                'user': user,
+                'limit': limit,
+                'page_number': page_number,
+                'extended': extended,
+                'method': method,
+                'format': _format
+            })
         else:
-            return self.make_api_call("GET", {'limit': limit, 'page_number': page_number,
-                                              'extended': extended, 'to': to, 'from': _from, 'method': method,
-                                              "format": "json", 'user': user})
+            return self.make_api_call("GET", {
+                'user': user,
+                'limit': limit,
+                'page_number': page_number,
+                'extended': extended,
+                'to': to,
+                'from': _from,
+                'method': method,
+                'format': _format
+            })
 
-    def user_getFriends(self, user, recent_tracks='false',
+    def user_getFriends(self, user, recent_tracks=0,
                         limit=50, page_number=1, _format='json'):
         method = "user.getFriends"
 
         return self.make_api_call("GET", {
             'user': user,
-            'recent_tracks': recent_tracks,
+            'recenttracks': recent_tracks,
             'limit': limit,
             'page_number': page_number,
             'method': method,
