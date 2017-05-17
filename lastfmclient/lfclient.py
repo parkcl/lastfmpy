@@ -81,7 +81,7 @@ class LastfmClient:
             'user': user,
             'recenttracks': recent_tracks,
             'limit': limit,
-            'page_number': page_number,
+            'page': page_number,
             'method': method,
             'format': _format
         })
