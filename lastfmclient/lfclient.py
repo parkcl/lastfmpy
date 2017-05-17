@@ -86,6 +86,28 @@ class LastfmClient:
             'format': _format
         })
 
-    # todo
+    def user_getInfo(self, user, _format='json'):
+        method = "user.getInfo"
+
+        return self.make_api_call("GET", {
+            'user': user,
+            'method': method,
+            'format': _format
+        })
+
+    def user_getLovedTracks(self, user,
+                            limit=50, page=1,
+                            _format='json'):
+        method = "user.getLovedTracks"
+
+        return self.make_api_call("GET", {
+            'user': user,
+            'method': method,
+            'limit': limit,
+            'page': page,
+            'format': _format
+        })
+
+# todo
     def validate_user(self):
         pass
