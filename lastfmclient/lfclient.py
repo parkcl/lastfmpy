@@ -3,14 +3,15 @@ import requests
 
 API_URL = "http://ws.audioscrobbler.com/2.0/"
 
+
 class LastfmClient:
     """A Last.fm Client used to make calls to the API."""
 
-    def __init__(self, api_key, api_sig = None, isAuth = False):
+    def __init__(self, api_key, api_sig=None, isAuth=False):
         self.api_key = api_key
         self.isAuth = isAuth
         self.api_sig = api_sig
-        self.apiKeyParam = {'api_key' : self.api_key}
+        self.apiKeyParam = {'api_key': self.api_key}
 
         # TODO auth
 
@@ -18,10 +19,10 @@ class LastfmClient:
         method = method.lower()
         req_call = getattr(requests, method)
         response = None
-        print(data)
 
         if method == 'get':
             response = req_call(API_URL, params={**self.apiKeyParam, **data})
+            print(response.url)
 
         return response.json() if response is not None else ""
 
@@ -45,19 +46,33 @@ class LastfmClient:
         else:
             return None
 
-
-    def user_getRecentPlayed(self, user, limit=50, page_number = 1, _from=None,
-                            extended=0, to=None):
+    def user_getRecentPlayed(self, user, limit=50,
+                             page_number=1, _from=None,
+                             extended=0, to=None):
         method = "user.getrecenttracks"
 
         if _from is None and to is None:
-            return self.make_api_call("GET", {'limit':limit, 'page_number':page_number,
-                                    'extended':extended, 'method':method, "format":"json",
-                                    'user':user})
+            return self.make_api_call("GET", {'limit': limit, 'page_number': page_number,
+                                              'extended': extended, 'method': method, "format": "json",
+                                              'user': user})
         else:
-            return self.make_api_call("GET", {'limit':limit, 'page_number':page_number,
-                                    'extended':extended, 'to':to, 'from' :_from, 'method':method,
-                                    "format":"json", 'user':user})
+            return self.make_api_call("GET", {'limit': limit, 'page_number': page_number,
+                                              'extended': extended, 'to': to, 'from': _from, 'method': method,
+                                              "format": "json", 'user': user})
+
+    def user_getFriends(self, user, recent_tracks='false',
+                        limit=50, page_number=1, _format='json'):
+        method = "user.getFriends"
+
+        return self.make_api_call("GET", {
+            'user': user,
+            'recent_tracks': recent_tracks,
+            'limit': limit,
+            'page_number': page_number,
+            'method': method,
+            'format': _format
+        })
+
     # todo
     def validate_user(self):
         pass
