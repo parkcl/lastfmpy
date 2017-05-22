@@ -108,6 +108,29 @@ class LastfmClient:
             'format': _format
         })
 
+    def artist_getSimilar(self, artist,
+                         limit=5, autocorrect=1,
+                         mbid=None, _format='json'):
+        method = "artist.getSimilar"
+
+        if mbid is not None:
+            return self.make_api_call("GET", {
+                'method': method,
+                'artist': artist,
+                'limit': limit,
+                'mbid': mbid,
+                'autocorrect': autocorrect,
+                'format': _format
+            })
+        else:
+            return self.make_api_call("GET", {
+                'method': method,
+                'artist': artist,
+                'limit': limit,
+                'autocorrect': autocorrect,
+                'format': _format
+            })
+
 # todo
     def validate_user(self):
         pass
