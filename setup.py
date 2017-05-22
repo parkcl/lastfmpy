@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='lastfmpy',
@@ -6,5 +6,6 @@ setup(
     url='https://github.com/parkcl/lastfmpy',
     author="@parkcl",
     license='MIT',
+    packages=find_packages(),
     install_requires=['requests']
 )
