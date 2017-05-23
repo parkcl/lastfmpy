@@ -7,5 +7,5 @@ setup(
     author="@parkcl",
     license='MIT',
     install_requires=['requests'],
-    packages=['lastfmpy'])
+    packages=['lastfmpy']
 )
