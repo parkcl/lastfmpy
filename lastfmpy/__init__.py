@@ -1,1 +1,1 @@
-
+from .lfclient import LastfmClient
