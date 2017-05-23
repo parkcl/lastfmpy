@@ -5,3 +5,9 @@ This is a Last.fm client written in Python that makes use of Last.fm API availab
 `python setup.py install`
 
 # examples / usage
+```python
+import lastfmpy
+
+lf = lastfmpy.LastfmClient('your api key')
+print(lf.artist_getSimilar('Radiohead'))
+```
