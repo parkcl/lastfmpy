@@ -12,6 +12,21 @@ class LastfmClient:
         self.isAuth = isAuth
         self.api_sig = api_sig
         self.apiKeyParam = {'api_key': self.api_key}
+        self.defaults = {
+            'artist': {
+                'mbid': None,
+                'autocorrect': 1,
+                'page': 1,
+                'limit': 50,
+                'format': 'json'
+            },
+            'user': {
+                'limit': 50,
+                'page': 1,
+                'format': 'json'
+            }
+
+        }
 
         # TODO auth
 
@@ -25,6 +40,16 @@ class LastfmClient:
             print(response.url)
 
         return response.json() if response is not None else ""
+
+    def _buildPayload(self, method, payload, pkey, **kwargs):
+        payload['method'] = method
+
+        if pkey in self.defaults:
+            for k, v in self.defaults[pkey].items():
+                if k in kwargs:
+                    payload[k] = kwargs[k]
+                elif v is not None:
+                    payload[k] = v
 
     def user_getPlayingNow(self, user):
         key = '@attr'
@@ -46,45 +71,25 @@ class LastfmClient:
         else:
             return None
 
-    def user_getRecentPlayed(self, user, limit=50,
-                             page_number=1, _from=None,
-                             extended=0, to=None,
-                             _format='json'):
-        method = "user.getrecenttracks"
+    def user_getRecentPlayed(self, user, to=None, _from=None,
+                             extended=1, **kwargs):
+        method = "user.getRecentTracks"
 
-        if _from is None and to is None:
-            return self.make_api_call("GET", {
-                'user': user,
-                'limit': limit,
-                'page_number': page_number,
-                'extended': extended,
-                'method': method,
-                'format': _format
-            })
-        else:
-            return self.make_api_call("GET", {
-                'user': user,
-                'limit': limit,
-                'page_number': page_number,
-                'extended': extended,
-                'to': to,
-                'from': _from,
-                'method': method,
-                'format': _format
-            })
+        payload = {'user': user, 'extended': extended}
+        if to is not None:
+            payload['to']: to
+        if _from is not None:
+            payload['from']: _from
 
-    def user_getFriends(self, user, recent_tracks=0,
-                        limit=50, page_number=1, _format='json'):
+        self._buildPayload(method, payload, 'user', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def user_getFriends(self, user, recenttracks=0, **kwargs):
         method = "user.getFriends"
 
-        return self.make_api_call("GET", {
-            'user': user,
-            'recenttracks': recent_tracks,
-            'limit': limit,
-            'page': page_number,
-            'method': method,
-            'format': _format
-        })
+        payload = {'user': user, 'recenttracks': recenttracks}
+        self._buildPayload(method, payload, 'user', **kwargs)
+        return self.make_api_call("GET", payload)
 
     def user_getInfo(self, user, _format='json'):
         method = "user.getInfo"
@@ -95,42 +100,145 @@ class LastfmClient:
             'format': _format
         })
 
-    def user_getLovedTracks(self, user,
-                            limit=50, page=1,
-                            _format='json'):
+    def user_getLovedTracks(self, user, **kwargs):
         method = "user.getLovedTracks"
 
-        return self.make_api_call("GET", {
-            'user': user,
-            'method': method,
-            'limit': limit,
-            'page': page,
-            'format': _format
-        })
+        payload = {'user': user}
+        self._buildPayload(method, payload, 'user', **kwargs)
+        return self.make_api_call("GET", payload)
 
-    def artist_getSimilar(self, artist,
-                         limit=5, autocorrect=1,
-                         mbid=None, _format='json'):
+    def user_getPersonalTags(self, user, tag, taggingtype, **kwargs):
+        method = "user.getPersonalTags"
+
+        payload = {'user': user, 'tag': tag, 'taggingtype': taggingtype}
+        self._buildPayload(method, payload, 'user', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def user_getTopAlbums(self, user, period='overall', **kwargs):
+        '''
+            Return top albums for user.
+
+            Params:
+                user: the lastfm username
+                period: time period in (default=overall):
+                    {overall | 7day | 1month | 3month | 6month | 12month}
+                kwargs: additional keyword args
+        '''
+
+        method = "user.getTopAlbums"
+
+        payload = {'user': user, 'period': period}
+        self._buildPayload(method, payload, 'user', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def user_getTopArtists(self, user, period='overall', **kwargs):
+        '''
+            Return top artists for user.
+
+            Params:
+                user: the lastfm username
+                period: time period in (default=overall):
+                    {overall | 7day | 1month | 3month | 6month | 12month}
+                kwargs: additional keyword args
+        '''
+        method = "user.getTopArtists"
+
+        payload = {'user': user, 'period': period}
+        self._buildPayload(method, payload, 'user', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def user_getTopTracks(self, user, period='overall', **kwargs):
+        '''
+            Return top tracks for user.
+
+            Params:
+                user: the lastfm username
+                period: time period in (default=overall):
+                    {overall | 7day | 1month | 3month | 6month | 12month}
+                kwargs: additional keyword args
+        '''
+        method = "user.getTopTracks"
+
+        payload = {'user': user, 'period': period}
+        self._buildPayload(method, payload, 'user', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def user_getWeeklyAlbumChart(self, user, _from=None, to=None, _format='json'):
+        '''
+            Return weekly album chart for user. If no time period
+            is specified using _from and to params, the most recent
+            chart will be return.
+
+            Params:
+                user: the lastfm username
+                _from: starting time point
+                to: ending time point
+                _format: format to return
+        '''
+        method = "user.getWeeklyAlbumChart"
+        payload = {'user': user, 'format': _format, 'method': method}
+        if _from is not None:
+            payload['from'] = _from
+        if to is not None:
+            payload['to']: to
+
+        return self.make_api_call("GET", payload)
+
+    def artist_getSimilar(self, artist, **kwargs):
         method = "artist.getSimilar"
 
-        if mbid is not None:
-            return self.make_api_call("GET", {
-                'method': method,
-                'artist': artist,
-                'limit': limit,
-                'mbid': mbid,
-                'autocorrect': autocorrect,
-                'format': _format
-            })
-        else:
-            return self.make_api_call("GET", {
-                'method': method,
-                'artist': artist,
-                'limit': limit,
-                'autocorrect': autocorrect,
-                'format': _format
-            })
+        payload = {
+            'method': method,
+            'artist': artist
+        }
 
-# todo
+        self._buildPayload(payload, 'artist', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def artist_getInfo(self, artist, **kwargs):
+        method = "artist.getInfo"
+
+        payload = {
+            'method': method,
+            'artist': artist
+        }
+
+        self._buildPayload(payload, 'artist', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def artist_search(self, artist, **kwargs):
+        method = "artist.search"
+
+        payload = {
+            'method': method,
+            'artist': artist
+        }
+
+        self._buildPayload(payload, 'artist', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def artist_getTopTracks(self, artist, **kwargs):
+        method = "artist.getTopTracks"
+
+        payload = {
+            'artist': artist,
+            'method': method
+        }
+
+        self._buildPayload(payload, 'artist', **kwargs)
+        return self.make_api_call("GET", payload)
+
+    def artist_getCorrection(self, artist, _format='json'):
+        method = "artist.getCorrection"
+
+        payload = {
+            'artist': artist,
+            'method': method,
+            'format': _format
+        }
+
+        return self.make_api_call("GET", payload)
+
+    # todo
     def validate_user(self):
         pass
