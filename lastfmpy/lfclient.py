@@ -184,6 +184,49 @@ class LastfmClient:
 
         return self.make_api_call("GET", payload)
 
+    def user_getWeeklyTrackChart(self, user, _from=None, to=None, _format='json'):
+        '''
+            Return weekly album chart for user. If no time period
+            is specified using _from and to params, the most recent
+            chart will be return.
+
+            Params:
+                user: the lastfm username
+                _from: starting time point
+                to: ending time point
+                _format: format to return
+        '''
+        method = "user.getWeeklyTrackChart"
+        payload = {'user': user, 'format': _format, 'method': method}
+        if _from is not None:
+            payload['from'] = _from
+        if to is not None:
+            payload['to']: to
+
+        return self.make_api_call("GET", payload)
+
+    def user_getWeeklyArtistChart(self, user, _from=None, to=None, _format='json'):
+        '''
+            Return weekly album chart for user. If no time period
+            is specified using _from and to params, the most recent
+            chart will be return.
+
+            Params:
+                user: the lastfm username
+                _from: starting time point
+                to: ending time point
+                _format: format to return
+        '''
+        method = "user.getWeeklyArtistChart"
+        payload = {'user': user, 'format': _format, 'method': method}
+        if _from is not None:
+            payload['from'] = _from
+        if to is not None:
+            payload['to']: to
+
+        return self.make_api_call("GET", payload)
+
+
     def artist_getSimilar(self, artist, **kwargs):
         method = "artist.getSimilar"
 
