@@ -1,17 +1,19 @@
 import requests
 
-
 API_URL = "http://ws.audioscrobbler.com/2.0/"
 
+
+class Track:
+
+    def __init__(self, artist, title):
+        self.artist = artist
+        self.title = title
 
 class LastfmClient:
     """A Last.fm Client used to make calls to the API."""
 
-    def __init__(self, api_key, api_sig=None, isAuth=False):
+    def __init__(self, api_key):
         self.api_key = api_key
-        self.isAuth = isAuth
-        self.api_sig = api_sig
-        self.apiKeyParam = {'api_key': self.api_key}
         self.defaults = {
             'artist': {
                 'mbid': None,
@@ -28,18 +30,21 @@ class LastfmClient:
 
         }
 
-        # TODO auth
-
     def make_api_call(self, method, data=None):
         method = method.lower()
         req_call = getattr(requests, method)
         response = None
 
         if method == 'get':
-            response = req_call(API_URL, params={**self.apiKeyParam, **data})
+            response = req_call(API_URL, params={**{"api_key" : self.api_key}, **data})
             print(response.url)
 
         return response.json() if response is not None else ""
+
+    def getToken(self):
+        return self.make_api_call("GET", {'method': 'auth.getToken',
+                                          'api_key': self.api_key,
+                                          'format': 'json'})['token']
 
     def _buildPayload(self, method, payload, pkey, **kwargs):
         payload['method'] = method
@@ -50,6 +55,13 @@ class LastfmClient:
                     payload[k] = kwargs[k]
                 elif v is not None:
                     payload[k] = v
+
+    def user_loveTrack(self, track):
+        session = self._authenticate()
+
+        if session is None:
+            print("Session is none. Did you set api_sig?")
+            return
 
     def user_getPlayingNow(self, user):
         key = '@attr'
@@ -226,7 +238,6 @@ class LastfmClient:
 
         return self.make_api_call("GET", payload)
 
-
     def artist_getSimilar(self, artist, **kwargs):
         method = "artist.getSimilar"
 
@@ -281,7 +292,3 @@ class LastfmClient:
         }
 
         return self.make_api_call("GET", payload)
-
-    # todo
-    def validate_user(self):
-        pass
