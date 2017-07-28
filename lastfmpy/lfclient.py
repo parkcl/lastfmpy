@@ -46,8 +46,7 @@ class LastfmClient:
                                           'api_key': self.api_key,
                                           'format': 'json'})['token']
 
-    def _buildPayload(self, method, payload, pkey, **kwargs):
-        payload['method'] = method
+    def _buildPayload(self, payload, pkey, **kwargs):
 
         if pkey in self.defaults:
             for k, v in self.defaults[pkey].items():
@@ -237,7 +236,7 @@ class LastfmClient:
             payload['to']: to
 
         return self.make_api_call("GET", payload)
-
+    
     def artist_getSimilar(self, artist, **kwargs):
         method = "artist.getSimilar"
 
@@ -290,5 +289,21 @@ class LastfmClient:
             'method': method,
             'format': _format
         }
+
+        return self.make_api_call("GET", payload)
+
+    def track_getInfo(self, artist, track, username=None, acorrect=0, _format='json'):
+        method = "track.getInfo"
+
+        payload = {
+            'artist': artist,
+            'track': track,
+            'format': _format,
+            'autocorrect': acorrect,
+            'method': method
+        }
+
+        if username:
+            payload['username'] = username
 
         return self.make_api_call("GET", payload)
