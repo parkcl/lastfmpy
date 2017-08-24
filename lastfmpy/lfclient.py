@@ -44,6 +44,7 @@ class Commons:
         return None if 'track' not in data else data['track']['duration']
 
 class LastfmClient(Base, Commons):
+    INVALID_API_KEY_CODE = 10
 
     def __init__(self, api_key, username=None):
         super().__init__(api_key)
@@ -67,6 +68,10 @@ class LastfmClient(Base, Commons):
         if not d:
             return
         return Track(d['artist'], d['track'], self)
+
+    def is_valid_apikey(self):
+        rd = self.get_track('', '').get_raw_track_data()
+        return not rd['error'] == self.INVALID_API_KEY_CODE if 'error' in rd else True
 
 
 class Track(Commons):
@@ -98,6 +103,9 @@ class Track(Commons):
 
     def get_duration(self):
         return super()._parse_trackduration(self._get_request())
+
+    def get_raw_track_data(self):
+        return self._get_request()
 
     def _get_request(self):
         req = getattr(self.client, '_make_api_call')
