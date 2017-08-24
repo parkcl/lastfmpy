@@ -73,6 +73,9 @@ class LastfmClient(Base, Commons):
         rd = self.get_track('', '').get_raw_track_data()
         return not rd['error'] == self.INVALID_API_KEY_CODE if 'error' in rd else True
 
+    def get_user(self, username):
+        self.set_user_context(username)
+        return User(username, self)
 
 class Track(Commons):
 
@@ -113,3 +116,23 @@ class Track(Commons):
 
     def __str__(self):
         return self.artist + ' : ' + self.track
+
+class User(Commons):
+    NO_SUCH_USER_ERR_MSG = 'User not found'
+
+    def __init__(self, username, client):
+        self.client = client
+        self.username = username
+        self.prefix = 'user'
+
+        self.params = {
+            'user': self.username
+        }
+
+    def _get_request(self, method="getInfo"):
+        req = getattr(self.client, '_make_api_call')
+        return req('get', self.prefix + '.' + method, self.params)
+
+    def is_user(self):
+        d = self._get_request()
+        return d['error'] == self.NO_SUCH_USER_ERR_MSG if 'error' in d else True
