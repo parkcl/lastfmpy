@@ -9,5 +9,6 @@ This is a Last.fm client written in Python that makes use of Last.fm API availab
 import lastfmpy
 
 lf = lastfmpy.LastfmClient('your api key')
-print(lf.artist_getSimilar('Radiohead'))
+t = lf.get_autocorrected_track('radiohead', 'pyramid song')
+print(t.get_duration())
 ```
